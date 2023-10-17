@@ -23,8 +23,8 @@ def hello_world():
     
         dateandtime = datetime.now(pytz.timezone('America/Los_Angeles')).strftime("%a %b %d %H:%M:%S %Z %Y")
         message=""
-        message+=dateandtime+"\n"
-        message+=companyName+" ("+StockSymbol+")\n"
+        message+=dateandtime+"<br>\n"
+        message+=companyName+" ("+StockSymbol+")<br>\n"
         message+=str(stockPrice)
         if priceChange >= 0:
             message+=" +"  
