@@ -24,8 +24,8 @@ def hello_world():
         dateandtime = datetime.now(pytz.timezone('America/Los_Angeles')).strftime("%a %b %d %H:%M:%S %Z %Y")
         message=""
         message+=dateandtime+"\n"
-        message+=companyName,"("+StockSymbol+")\n"
-        message+=stockPrice, "+" if priceChange >= 0 else "-"+str(abs(round(priceChange,2))), "(+" if percentChange >= 0 else "(-" +str(abs(round(percentChange,2)))+"%)")
+        message+=companyName+" ("+StockSymbol+")\n"
+        message+=stockPrice+" +" if priceChange >= 0 else "-"+str(abs(round(priceChange,2)))+" (+" if percentChange >= 0 else "(-" +str(abs(round(percentChange,2)))+"%)"
         return(message)
     except EOFError as e:
         return("End Reached.")
