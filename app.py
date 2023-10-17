@@ -25,7 +25,17 @@ def hello_world():
         message=""
         message+=dateandtime+"\n"
         message+=companyName+" ("+StockSymbol+")\n"
-        message+=str(stockPrice)+" +" if priceChange >= 0 else "-"+str(abs(round(priceChange,2)))+" (+" if percentChange >= 0 else "(-" +str(abs(round(percentChange,2)))+"%)"
+        message+=str(stockPrice)
+        if priceChange >= 0:
+            message+=" +"  
+        else:
+            message+="-"
+        message+=str(abs(round(priceChange,2)))
+        if percentChange >= 0:
+            message+=" (+" 
+        else:
+            message+="(-"
+        message+=str(abs(round(percentChange,2)))+"%)"
         return(message)
     except EOFError as e:
         return("End Reached.")
