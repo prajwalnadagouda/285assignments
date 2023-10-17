@@ -42,7 +42,7 @@ def hello_world():
     except ConnectionError:
         return("Network not available. Check your connection.")
     except Exception as e:
-        return("Details Unavailable. Check your input\n",e)
+        return("Details Unavailable. Check your input")
         # break
 
 
