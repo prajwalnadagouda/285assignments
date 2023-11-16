@@ -1,49 +1,63 @@
-from flask import Flask, request
-import yfinance as yf
-from datetime import datetime, timezone
-from requests.exceptions import ConnectionError
-import pytz
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import pandas as pd
+import joblib
+import calendar
+from datetime import datetime
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route('/')
-def hello_world():
-    StockSymbol = request.args.get('stock') 
-    try:
-        # StockSymbol =input("Please enter a symbol:\n")
-        stock = yf.Ticker(StockSymbol)
-        info = stock.info
-        companyName = info['longName']
-        stockPrice = float(info['currentPrice'])
-        previousPrice= float(info['previousClose'])
-        # print(stock_price,previous_day)
-        priceChange= stockPrice-previousPrice
-        percentChange=priceChange/stockPrice*100
-
-    
-        dateandtime = datetime.now(pytz.timezone('America/Los_Angeles')).strftime("%a %b %d %H:%M:%S %Z %Y")
-        message=""
-        message+=dateandtime+"<br>\n"
-        message+=companyName+" ("+StockSymbol+")<br>\n"
-        message+=str(stockPrice)
-        if priceChange >= 0:
-            message+=" +"  
-        else:
-            message+="-"
-        message+=str(abs(round(priceChange,2)))
-        if percentChange >= 0:
-            message+=" (+" 
-        else:
-            message+="(-"
-        message+=str(abs(round(percentChange,2)))+"%)"
-        return(message)
-    except EOFError as e:
-        return("End Reached.")
-    except ConnectionError:
-        return("Network not available. Check your connection.")
-    except Exception as e:
-        return("Details Unavailable. Check your input")
-        # break
+# Load the trained model
+model = joblib.load('random_forest_model.joblib')
 
 
-    return 'Hello, World!'
+
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json()
+    selected_year = data['year']
+    selected_month = data['month']
+
+    totaldays= (calendar.monthrange(int(selected_year), int(selected_month))[1])
+
+    monthly_usage_data=0
+    for days in range(1,totaldays+1):
+        date_string =f"{selected_year}-{selected_month:02d}-{days:02d}"
+        print(date_string)
+        date_object = datetime.strptime(date_string, "%Y-%m-%d")
+        day_of_week = int(date_object.strftime("%w"))
+        for i in range(0,24):
+            new_data = pd.DataFrame({'hour_of_day': [i], 'day_of_week': [day_of_week]})
+            prediction = model.predict(new_data)[0]*4
+            monthly_usage_data+=prediction
+
+    return jsonify({'prediction': monthly_usage_data})
+    # return jsonify({'prediction': prediction[0]})
+
+
+@app.route('/formonthpredict', methods=['POST'])
+def formonthpredict():
+    data = request.get_json()
+    selected_year = int(data['year'])
+    selected_month = int(data['month'])
+    selected_day = int(data['day'])
+    print(selected_year,selected_month,selected_day)
+    # totaldays= (calendar.monthrange(int(selected_year), int(selected_month))[1])
+
+    sumTotal=0
+    date_string =f"{selected_year}-{selected_month:02d}-{selected_day:02d}"
+    date_object = datetime.strptime(date_string, "%Y-%m-%d")
+    day_of_week = int(date_object.strftime("%w"))
+    for i in range(0,24):
+        new_data = pd.DataFrame({'hour_of_day': [i], 'day_of_week': [day_of_week]})
+        prediction = model.predict(new_data)[0]*4
+        sumTotal+=prediction
+
+    return jsonify({'prediction': sumTotal})
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
