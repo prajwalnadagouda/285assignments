@@ -39,7 +39,6 @@ def predict():
 
 @app.route('/formonthpredict', methods=['POST'])
 def formonthpredict():
-    return jsonify({'prediction': 21})
     data = request.get_json()
     selected_year = int(data['year'])
     selected_month = int(data['month'])
