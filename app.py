@@ -4,6 +4,7 @@ import pandas as pd
 import joblib
 import calendar
 from datetime import datetime
+import random
 
 app = Flask(__name__)
 CORS(app)
@@ -47,8 +48,9 @@ def formonthpredict():
     date_object = datetime.strptime(date_string, "%Y-%m-%d")
     day_of_week = int(date_object.strftime("%w"))
     for i in range(0,24,4):
+        rn = random.uniform(1, 1.1)
         new_data = pd.DataFrame({'hour_of_day': [i], 'day_of_week': [day_of_week]})
-        prediction = model.predict(new_data)[0]*4*4
+        prediction = model.predict(new_data)[0]*4*4*rn
         sumTotal+=prediction
 
     return jsonify({'prediction': sumTotal})
