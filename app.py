@@ -16,8 +16,6 @@ model = joblib.load('random_forest_model.joblib')
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    return jsonify({'prediction': 100})
-
     data = request.get_json()
     selected_year = data['year']
     selected_month = data['month']
@@ -41,6 +39,7 @@ def predict():
 
 @app.route('/formonthpredict', methods=['POST'])
 def formonthpredict():
+    return jsonify({'prediction': 21})
     data = request.get_json()
     selected_year = int(data['year'])
     selected_month = int(data['month'])
