@@ -25,7 +25,7 @@ def predict():
     monthly_usage_data=0
     for days in range(1,totaldays+1):
         date_string =f"{selected_year}-{selected_month:02d}-{days:02d}"
-        print(date_string)
+        # print(date_string)
         date_object = datetime.strptime(date_string, "%Y-%m-%d")
         day_of_week = int(date_object.strftime("%w"))
         for i in range(0,24):
@@ -34,7 +34,6 @@ def predict():
             monthly_usage_data+=prediction
 
     return jsonify({'prediction': monthly_usage_data})
-    # return jsonify({'prediction': prediction[0]})
 
 
 @app.route('/formonthpredict', methods=['POST'])
@@ -43,16 +42,13 @@ def formonthpredict():
     selected_year = int(data['year'])
     selected_month = int(data['month'])
     selected_day = int(data['day'])
-    print(selected_year,selected_month,selected_day)
-    # totaldays= (calendar.monthrange(int(selected_year), int(selected_month))[1])
-
     sumTotal=0
     date_string =f"{selected_year}-{selected_month:02d}-{selected_day:02d}"
     date_object = datetime.strptime(date_string, "%Y-%m-%d")
     day_of_week = int(date_object.strftime("%w"))
-    for i in range(0,24):
+    for i in range(0,24,4):
         new_data = pd.DataFrame({'hour_of_day': [i], 'day_of_week': [day_of_week]})
-        prediction = model.predict(new_data)[0]*4
+        prediction = model.predict(new_data)[0]*4*4
         sumTotal+=prediction
 
     return jsonify({'prediction': sumTotal})
