@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from datetime import datetime, timedelta
 from flask_cors import CORS
 import random
 import yfinance as yf
@@ -46,12 +47,15 @@ def get_stock_suggestions():
                     if 'longName' in info and 'currentPrice' in info:
                         completeinfo["name"]=info['longName']
                         completeinfo["current_value"]=round(info['currentPrice'],2)
-                        completeinfo["history"]=[123,124,125,126,127]
                     else:
                         completeinfo["name"]=info['longName']
                         completeinfo["current_value"]=round(info['navPrice'],2)
-                        completeinfo["history"]=[123,124,125,126,127]
                     
+                    end_date = datetime.now()
+                    start_date = end_date - timedelta(days=10)
+                    historical_data = stockdets.history(start=start_date, end=end_date)
+                    closing_prices = round(historical_data['Close'].tail(5),2)
+                    completeinfo["history"]=(list(closing_prices))
                     stockdata.append(completeinfo)
                     
                 stockinfo["stocks"]=stockdata
