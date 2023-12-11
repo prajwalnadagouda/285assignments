@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Sample data for stock suggestions
-stock_suggestions = {
+fixed_stock_suggestions = {
     'Ethical_Investing': ['AAPL', 'ADBE', 'NSRGY'],
     'Growth_Investing': ['GOOGL', 'AMZN', 'TSLA'],
     'Index_Investing': ['VTI', 'IXUS', 'ILTB'],
@@ -25,41 +25,39 @@ def get_stock_suggestions():
         selected_strategies = data.get('selectedStrategies', [])
 
         value_split=[0.6,0.3,0.1]
-        # Randomly select stocks based on selected strategies
         suggested_stocks = {}
         count=1
         strategycount=len(selected_strategies)
         for strategy in selected_strategies:
-            stockinfo={}
+            complete_strategy_info={}
             stockdata=[]
-            if strategy in stock_suggestions:
-                stockinfo["name"]=strategy
-                allstocks=random.sample(stock_suggestions[strategy], 3)
-                for pos,eachstock in enumerate(allstocks):
+            if strategy in fixed_stock_suggestions:
+                complete_strategy_info["name"]=strategy
+                all_stocks=random.sample(fixed_stock_suggestions[strategy], 3)
+                for position,each_stock in enumerate(all_stocks):
 
-                    stockdets = yf.Ticker(eachstock)
-                    info = stockdets.info
+                    stock_details = yf.Ticker(each_stock)
+                    info = stock_details.info
                     
-                    completeinfo={}
-                    completeinfo["shortname"]=eachstock
-                    completeinfo["value"]=(investment_amount*value_split[pos])/strategycount
+                    complete_stock_info={}
+                    complete_stock_info["shortname"]=each_stock
+                    complete_stock_info["value"]=(investment_amount*value_split[position])/strategycount
+                    complete_stock_info["name"]=info['longName']
 
                     if 'longName' in info and 'currentPrice' in info:
-                        completeinfo["name"]=info['longName']
-                        completeinfo["current_value"]=round(info['currentPrice'],2)
+                        complete_stock_info["current_value"]=round(info['currentPrice'],2)
                     else:
-                        completeinfo["name"]=info['longName']
-                        completeinfo["current_value"]=round(info['navPrice'],2)
+                        complete_stock_info["current_value"]=round(info['navPrice'],2)
                     
                     end_date = datetime.now()
                     start_date = end_date - timedelta(days=10)
-                    historical_data = stockdets.history(start=start_date, end=end_date)
+                    historical_data = stock_details.history(start=start_date, end=end_date)
                     closing_prices = round(historical_data['Close'].tail(5),2)
-                    completeinfo["history"]=(list(closing_prices))
-                    stockdata.append(completeinfo)
+                    complete_stock_info["history"]=(list(closing_prices))
+                    stockdata.append(complete_stock_info)
                     
-                stockinfo["stocks"]=stockdata
-                suggested_stocks["strategy"+str(count)] = stockinfo
+                complete_strategy_info["stocks"]=stockdata
+                suggested_stocks["strategy"+str(count)] = complete_strategy_info
                 count+=1
 
         # Simulate money division (equal amount for each stock)
