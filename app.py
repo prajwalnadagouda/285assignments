@@ -22,22 +22,24 @@ def get_stock_suggestions():
         investment_amount = float(data.get('investmentAmount', 5000))
         selected_strategies = data.get('selectedStrategies', [])
 
+        value_split=[0.6,0.3,0.1]
         print(investment_amount)
         print(selected_strategies)
         # Randomly select stocks based on selected strategies
         suggested_stocks = {}
         count=1
+        strategycount=len(selected_strategies)
         for strategy in selected_strategies:
             stockinfo={}
             stockdata=[]
             if strategy in stock_suggestions:
                 stockinfo["name"]=strategy
                 allstocks=random.sample(stock_suggestions[strategy], 3)
-                for eachstock in allstocks:
+                for pos,eachstock in enumerate(allstocks):
                     completeinfo={}
                     completeinfo["name"]=eachstock
                     completeinfo["shortname"]=eachstock
-                    completeinfo["value"]=120.2
+                    completeinfo["value"]=(investment_amount*value_split[pos])/strategycount
                     completeinfo["current_value"]=120.2
                     completeinfo["history"]=[123,124,125,126,127]
                     stockdata.append(completeinfo)
