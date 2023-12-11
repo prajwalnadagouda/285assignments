@@ -9,11 +9,11 @@ CORS(app)
 
 # Sample data for stock suggestions
 fixed_stock_suggestions = {
-    'Ethical_Investing': ['AAPL', 'ADBE', 'NSRGY'],
-    'Growth_Investing': ['GOOGL', 'AMZN', 'TSLA'],
-    'Index_Investing': ['VTI', 'IXUS', 'ILTB'],
-    'Quality_Investing': ['MSFT', 'V', 'MA'],
-    'Value_Investing': ['JPM', 'WMT', 'KO']
+    'Ethical_Investing': ['BYND', 'IDXX','ESGU','TSLA', 'ENPH'],
+    'Growth_Investing': ['AMZN','NVDA','GOOGL', 'MRNA', 'IGV'],
+    'Index_Investing': ['VOO', 'FZROX', 'VXUS', 'SCHZ', 'ILTB'],
+    'Quality_Investing': ['MSFT', 'JNJ', 'KO', 'CL', 'MA'],
+    'Value_Investing': ['F', 'XOM', 'JPM', 'GE', 'BAC']
 }
 
 
@@ -43,11 +43,14 @@ def get_stock_suggestions():
                     complete_stock_info["shortname"]=each_stock
                     complete_stock_info["value"]=(investment_amount*value_split[position])/strategycount
                     complete_stock_info["name"]=info['longName']
-
-                    if 'longName' in info and 'currentPrice' in info:
+                    # print(info)
+                    if 'currentPrice' in info:
                         complete_stock_info["current_value"]=round(info['currentPrice'],2)
+                    elif 'previousClose' in info:
+                        complete_stock_info["current_value"]=round(info['previousClose'],2)
                     else:
-                        complete_stock_info["current_value"]=round(info['navPrice'],2)
+                        complete_stock_info["current_value"]=0
+                        
                     
                     end_date = datetime.now()
                     start_date = end_date - timedelta(days=10)
