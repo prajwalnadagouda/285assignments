@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from flask_cors import CORS
 import random
 import yfinance as yf
+from bs4 import BeautifulSoup
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -15,6 +17,41 @@ fixed_stock_suggestions = {
     'Quality_Investing': ['MSFT', 'JNJ', 'KO', 'CL', 'MA'],
     'Value_Investing': ['F', 'XOM', 'JPM', 'GE', 'BAC']
 }
+
+@app.route('/get_performers', methods=['GET'])
+def get_performers():
+    performers={}
+    try:
+        url = "https://finance.yahoo.com/gainers"
+        soup = BeautifulSoup(requests.get(url).text, 'html.parser')
+        assets = soup.find_all('a', attrs={"class":"Fw(600)"})
+        assets=assets[6:]
+        if(len(assets)>10):
+            assets=assets[:10]
+        gainers=[]
+        for asset in assets:
+            title = asset['title']
+            print(title)
+            gainers.append(title)
+        performers['gainers']=gainers
+
+        url = "https://finance.yahoo.com/losers"
+        soup = BeautifulSoup(requests.get(url).text, 'html.parser')
+        assets = soup.find_all('a', attrs={"class":"Fw(600)"})
+        assets=assets[6:]
+        if(len(assets)>10):
+            assets=assets[:10]
+        losers=[]
+        for asset in assets:
+            title = asset['title']
+            losers.append(title)
+        performers['losers']=losers
+
+    except:
+        pass
+    
+    print(performers)
+    return jsonify(performers)
 
 
 @app.route('/get_stock_suggestions', methods=['POST'])
