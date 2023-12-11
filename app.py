@@ -35,7 +35,11 @@ def get_stock_suggestions():
                 allstocks=random.sample(stock_suggestions[strategy], 3)
                 for eachstock in allstocks:
                     completeinfo={}
+                    completeinfo["name"]=eachstock
                     completeinfo["shortname"]=eachstock
+                    completeinfo["value"]=120.2
+                    completeinfo["current_value"]=120.2
+                    completeinfo["history"]=[123,124,125,126,127]
                     stockdata.append(completeinfo)
                 stockinfo["stocks"]=stockdata
                 suggested_stocks["strategy"+str(count)] = stockinfo
