@@ -1,7 +1,3 @@
 Flask
 Flask-CORS
-pandas
-joblib
-scikit-learn
-Gunicorn
-yfinance
+yfinance --upgrade --no-cache-dir

@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import random
+import yfinance as yf
 
 app = Flask(__name__)
 CORS(app)
@@ -23,8 +24,6 @@ def get_stock_suggestions():
         selected_strategies = data.get('selectedStrategies', [])
 
         value_split=[0.6,0.3,0.1]
-        print(investment_amount)
-        print(selected_strategies)
         # Randomly select stocks based on selected strategies
         suggested_stocks = {}
         count=1
@@ -37,13 +36,24 @@ def get_stock_suggestions():
                 allstocks=random.sample(stock_suggestions[strategy], 3)
                 for pos,eachstock in enumerate(allstocks):
 
+                    stockdets = yf.Ticker(eachstock)
+                    info = stockdets.info
+                    
                     completeinfo={}
-                    completeinfo["name"]=eachstock
                     completeinfo["shortname"]=eachstock
                     completeinfo["value"]=(investment_amount*value_split[pos])/strategycount
-                    completeinfo["current_value"]=123
-                    completeinfo["history"]=[123,124,125,126,127]
+
+                    if 'longName' in info and 'currentPrice' in info:
+                        completeinfo["name"]=info['longName']
+                        completeinfo["current_value"]=round(info['currentPrice'],2)
+                        completeinfo["history"]=[123,124,125,126,127]
+                    else:
+                        completeinfo["name"]=info['longName']
+                        completeinfo["current_value"]=round(info['navPrice'],2)
+                        completeinfo["history"]=[123,124,125,126,127]
+                    
                     stockdata.append(completeinfo)
+                    
                 stockinfo["stocks"]=stockdata
                 suggested_stocks["strategy"+str(count)] = stockinfo
                 count+=1
