@@ -1,61 +1,54 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-import pandas as pd
-import joblib
-import calendar
-from datetime import datetime
 import random
 
 app = Flask(__name__)
 CORS(app)
 
-# Load the trained model
-model = joblib.load('random_forest_model.joblib')
+# Sample data for stock suggestions
+stock_suggestions = {
+    'Ethical_Investing': ['AAPL', 'ADBE', 'NSRGY'],
+    'Growth_Investing': ['GOOGL', 'AMZN', 'TSLA'],
+    'Index_Investing': ['VTI', 'IXUS', 'ILTB'],
+    'Quality_Investing': ['MSFT', 'V', 'MA'],
+    'Value_Investing': ['JPM', 'WMT', 'KO']
+}
 
 
+@app.route('/get_stock_suggestions', methods=['POST'])
+def get_stock_suggestions():
+    try:
+        data = request.json
+        investment_amount = float(data.get('investmentAmount', 5000))
+        selected_strategies = data.get('selectedStrategies', [])
 
+        print(investment_amount)
+        print(selected_strategies)
+        # Randomly select stocks based on selected strategies
+        suggested_stocks = {}
+        count=1
+        for strategy in selected_strategies:
+            stockinfo={}
+            stockdata=[]
+            if strategy in stock_suggestions:
+                stockinfo["name"]=strategy
+                allstocks=random.sample(stock_suggestions[strategy], 3)
+                for eachstock in allstocks:
+                    completeinfo={}
+                    completeinfo["shortname"]=eachstock
+                    stockdata.append(completeinfo)
+                stockinfo["stocks"]=stockdata
+                suggested_stocks["strategy"+str(count)] = stockinfo
+                count+=1
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.get_json()
-    selected_year = data['year']
-    selected_month = data['month']
+        # Simulate money division (equal amount for each stock)
 
-    totaldays= (calendar.monthrange(int(selected_year), int(selected_month))[1])
+        return jsonify(suggested_stocks)
 
-    monthly_usage_data=0
-    for days in range(1,totaldays+1):
-        date_string =f"{selected_year}-{selected_month:02d}-{days:02d}"
-        # print(date_string)
-        date_object = datetime.strptime(date_string, "%Y-%m-%d")
-        day_of_week = int(date_object.strftime("%w"))
-        for i in range(0,24):
-            new_data = pd.DataFrame({'hour_of_day': [i], 'day_of_week': [day_of_week]})
-            prediction = model.predict(new_data)[0]*4
-            monthly_usage_data+=prediction
-
-    return jsonify({'prediction': monthly_usage_data})
-
-
-@app.route('/formonthpredict', methods=['POST'])
-def formonthpredict():
-    data = request.get_json()
-    selected_year = int(data['year'])
-    selected_month = int(data['month'])
-    selected_day = int(data['day'])
-    sumTotal=0
-    date_string =f"{selected_year}-{selected_month:02d}-{selected_day:02d}"
-    date_object = datetime.strptime(date_string, "%Y-%m-%d")
-    day_of_week = int(date_object.strftime("%w"))
-    for i in range(0,24,4):
-        rn = random.uniform(1, 1.1)
-        new_data = pd.DataFrame({'hour_of_day': [i], 'day_of_week': [day_of_week]})
-        prediction = model.predict(new_data)[0]*4*4*rn
-        sumTotal+=prediction
-
-    return jsonify({'prediction': sumTotal})
-
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',port=8000, debug=True)
