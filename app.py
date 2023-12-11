@@ -36,11 +36,12 @@ def get_stock_suggestions():
                 stockinfo["name"]=strategy
                 allstocks=random.sample(stock_suggestions[strategy], 3)
                 for pos,eachstock in enumerate(allstocks):
+
                     completeinfo={}
                     completeinfo["name"]=eachstock
                     completeinfo["shortname"]=eachstock
                     completeinfo["value"]=(investment_amount*value_split[pos])/strategycount
-                    completeinfo["current_value"]=120.2
+                    completeinfo["current_value"]=123
                     completeinfo["history"]=[123,124,125,126,127]
                     stockdata.append(completeinfo)
                 stockinfo["stocks"]=stockdata
