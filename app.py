@@ -73,6 +73,13 @@ def get_stock():
             complete_stock_info["current_value"]=round(info['previousClose'],2)
         else:
             complete_stock_info["current_value"]=0
+            
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=10)
+        historical_data = stock_details.history(start=start_date, end=end_date)
+        closing_prices = round(historical_data['Close'].tail(5),2)
+        complete_stock_info["history"]=(list(closing_prices))
+
         return jsonify(complete_stock_info)
     except:
         return jsonify({'error': 'Internal Server Error'}), 500
