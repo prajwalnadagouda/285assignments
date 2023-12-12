@@ -54,6 +54,31 @@ def get_performers():
     return jsonify(performers)
 
 
+
+@app.route('/get_stock', methods=['POST'])
+def get_stock():
+    try:
+        data = request.json
+        selected_stock = data.get('stock')
+
+        stock_details = yf.Ticker(selected_stock)
+        info = stock_details.info
+        
+        complete_stock_info={}
+        complete_stock_info["shortname"]=selected_stock
+        complete_stock_info["name"]=info['longName']
+        if 'currentPrice' in info:
+            complete_stock_info["current_value"]=round(info['currentPrice'],2)
+        elif 'previousClose' in info:
+            complete_stock_info["current_value"]=round(info['previousClose'],2)
+        else:
+            complete_stock_info["current_value"]=0
+        return jsonify(complete_stock_info)
+    except:
+        return jsonify({'error': 'Internal Server Error'}), 500
+    
+
+
 @app.route('/get_stock_suggestions', methods=['POST'])
 def get_stock_suggestions():
     try:
